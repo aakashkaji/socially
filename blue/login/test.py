@@ -18,4 +18,4 @@ def home():
 
 #start apps here
 
-app.run(debug=True)
+#app.run(debug=True)
