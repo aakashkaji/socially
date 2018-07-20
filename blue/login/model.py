@@ -61,10 +61,11 @@ def create_web_tokens(**kwargs):
 
 def create_jwt_token(**kwargs):
     print(kwargs)
+    print(kwargs['user'])
     '''for key, value in kwargs.iteritems():
         print(key, '>', value)'''
 
-create_jwt_token(user='aakash',password='akki123')
+create_jwt_token(user='aaka',password='akki123')
 #insert_user(dc)
 #auth('aakash@gmail.com','12345')
 create_web_tokens(user='aakash',password='akki123')
