@@ -62,6 +62,3 @@ class RedisDb:
 
     def do_some(self):
         return 'Redis db run successfully'
-
-
-obj = RedisDb('localhost', '6379')
