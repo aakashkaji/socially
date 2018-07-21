@@ -31,7 +31,7 @@ class RedisDb:
         values=token_decode['uid']
 
         # uid convert into md5 for making keys of redis
-        key = hashlib.md5(values.encode()).hexadigest()
+        key = hashlib.md5(values.encode()).hexdigest()
 
         original_token=self.r.get(key)
         if original_token is not None:
@@ -54,8 +54,6 @@ def create_jwt_token(**kwargs):
     obj.store_token(web_encode,uid)
     return web_encode
 
-
-
 def auth(u,password):
     password=hashlib.md5(password.encode()).hexdigest()
     cl=db.user.find({"email" : u})
@@ -68,7 +66,6 @@ def auth(u,password):
             return {'tokens':json_token}
         else:
             return {'user':'Invalid'}
-
 
 @app.route("/user_login", methods=['GET', 'POST'])
 def user_login():
