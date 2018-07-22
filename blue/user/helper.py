@@ -1,4 +1,3 @@
-
 # We are using this file just for help
 # Connection provides Redis db i.e toke store in db and get tokens from there
 
@@ -23,10 +22,10 @@ class Dbconnect:
 class RedisDb:
 
     # this init method used as redis db
-    def __init__(self,host,port):
+    def __init__(self, host, port):
         self.host = host
         self.port = port
-        self.r = redis.StrictRedis(host=self.host, port=self.port, db=0) # r is used as connection to redis
+        self.r = redis.StrictRedis(host=self.host, port=self.port, db=0)  # r is used as connection to redis
 
     # This method used as store data in redis
 
@@ -40,29 +39,31 @@ class RedisDb:
     # This method used as get store data from redis
 
     def redis_validate_token(self, token):
+        original_token = ''
 
         # From token extract uid and convert into md5 which becomes key of redis and get values
         try:
 
             token_decode = jwt.decode(token, 'secret', algorithms=['HS256'])
             uid = token_decode['uid']
+            print(uid)
 
-        # uid convert into md5 for making keys of redis
+            # uid convert into md5 for making keys of redis
             key = hashlib.md5(uid.encode()).hexdigest()
-            print(key)
             original_token = self.r.get(key).decode()
-            print(original_token)
+
         except:
             pass
 
-        if original_token == token:
+        if token == original_token:
             return True
+        else:
+            return False
 
 
 class Token:
     @staticmethod
     def token_create(**kwargs):
-
         # only take uid field to create token of user
 
         web_token = jwt.encode(kwargs, 'secret', algorithm='HS256').decode()
@@ -73,7 +74,6 @@ class Token:
 
     @staticmethod
     def decode_token(token):
-
         # this will returns payload of md5 i.e uid
 
         web_token = jwt.decode(token, 'secret', algorithms=['HS256'])
