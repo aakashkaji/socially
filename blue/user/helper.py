@@ -8,7 +8,6 @@ import hashlib
 import jwt
 
 
-
 class Dbconnect:
 
     def __init__(self, host, port):
@@ -16,12 +15,10 @@ class Dbconnect:
         self.port = port
         self.client = MongoClient(self.host, self.port)
 
-    def db_select(self,db_name):
-        conn = self.client.db_name
+    def db_select(self):
+        conn = self.client.mydb
         return conn
 
-    def check_something(self):
-        return 'mongo db work successfully'
 
 class RedisDb:
 
@@ -42,23 +39,44 @@ class RedisDb:
 
     # This method used as get store data from redis
 
-    def redis_validate_token(self,token):
+    def redis_validate_token(self, token):
 
         # From token extract uid and convert into md5 which becomes key of redis and get values
-        token_decode = jwt.decode(token,'secret',algorithms=['HS256'])
-        uid = token_decode['uid']
+        try:
+
+            token_decode = jwt.decode(token, 'secret', algorithms=['HS256'])
+            uid = token_decode['uid']
 
         # uid convert into md5 for making keys of redis
-        key = hashlib.md5(uid.encode()).hexdigest()
-        original_token = self.r.get(key)
+            key = hashlib.md5(uid.encode()).hexdigest()
+            print(key)
+            original_token = self.r.get(key).decode()
+            print(original_token)
+        except:
+            pass
 
-        if original_token is not None:
+        if original_token == token:
+            return True
 
-            # This block used as validate tokens
-            return {'response' : 'token verified'}
 
-        else:
-            return {'response' : 'token not verified !!'}
+class Token:
+    @staticmethod
+    def token_create(**kwargs):
 
-    def do_some(self):
-        return 'Redis db run successfully'
+        # only take uid field to create token of user
+
+        web_token = jwt.encode(kwargs, 'secret', algorithm='HS256').decode()
+
+        # web_token = jwt.encode({'key': 'payload', 'key2': 'value2'}, 'secret', algorithm='HS256').decode()
+
+        return web_token
+
+    @staticmethod
+    def decode_token(token):
+
+        # this will returns payload of md5 i.e uid
+
+        web_token = jwt.decode(token, 'secret', algorithms=['HS256'])
+        uid = web_token['uid']
+
+        return uid
