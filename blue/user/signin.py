@@ -3,14 +3,20 @@
 print(sys.path)'''
 
 from helper import Dbconnect, RedisDb, Token
-from flask import Flask, jsonify, request
+from flask import Flask, jsonify, request, Blueprint, abort
 import hashlib
+from blue .user .permission import *
+import logging  # this used for as logging
+
+logging.basicConfig(filename='newfile.log', format='%(asctime)s - %(name)s -%(levelname)s- %(message)s', filemode='w')
+
+logger = logging.getLogger()
+logger.setLevel(logging.DEBUG)
 
 m = Dbconnect('localhost', 27017)  # type: Dbconnect
 redis = RedisDb('localhost', '6379')
 conn = m.db_select()
-
-app = Flask(__name__)
+user_blueprint = Blueprint('user', __name__)
 
 
 def auth1(username=None, password=None):
@@ -22,6 +28,7 @@ def auth1(username=None, password=None):
     for data in db_query:
        username_name = data['email']
        password_name = data['passw']
+       logging.debug(username_name)
 
     if username == username_name and password == password_name:
 
@@ -35,12 +42,12 @@ def auth1(username=None, password=None):
         return {'response': 'Not valid login and password !!'}
 
 
-@app.route('/login', methods=['GET', 'POST'])
+@user_blueprint.route('/login', methods=['GET', 'POST'])
 def login():
 
     if request.method == 'POST':
-        #user_name = request.json.get('user_name')
-        #user_password = request.json.get('user_password')
+        # user_name = request.json.get('user_name')
+        # user_password = request.json.get('user_password')
         data = request.get_json(force=True)
         user_name = data['user_name']
         user_password = data['user_password']
@@ -52,26 +59,30 @@ def login():
         return {'response': 'your method is not post'}
 
 
-@app.route('/fetch/<string:token>', methods=['GET'])
-def get_data(token):
-
-    print(token)
+@user_blueprint.route('/fetch', methods=['GET'])
+def get_data():
     result = []
-
     # firstly validate token and gives result
+    print(dict(request.headers.items()))
+    # get token from header
+    token = request.headers.get('token')
+    print(token)
     status = redis.redis_validate_token(token)
     if status:
+        # query database
         cursor = conn.user.find({}, {"_id": 0})
         for data in cursor:
             result.append(data)
-        print(result)
         return jsonify({'response': result})
 
-        # query database
     else:
-        return jsonify({'response': 'Sorry your token is invalid !!'})
+        return abort(404)
+
+#  This route is just for testing purpose
 
 
-    pass
-
-app.run(debug=True)
+@user_blueprint.route('/test_user')
+@check_permission('resource1')
+def test():
+    logging.debug('test routes success')
+    return 'testing success'

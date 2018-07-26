@@ -1,0 +1,2 @@
+2018-07-25 15:07:46,741 - werkzeug -INFO-  * Running on http://127.0.0.1:5000/ (Press CTRL+C to quit)
+2018-07-25 15:07:51,739 - werkzeug -INFO- 127.0.0.1 - - [25/Jul/2018 15:07:51] "GET /fetch HTTP/1.1" 404 -
